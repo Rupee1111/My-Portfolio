@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rupesh Prasad — UI/UX Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   GLOBAL
+═══════════════════════════════════════ */
+:root {
+  --ink: #0f0e0d;
+  --cream: #f5f0e8;
+  --sand: #e8dfc8;
+  --terracotta: #c8614a;
+  --gold: #d4a853;
+  --muted: #7a7060;
+  --white: #fefefe;
+  /* case study extras */
+  --rose: #C8183A;
+  --blush: #fdf0ec;
+  --border-cs: #ecddd8;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CURSOR ── */
+.cursor {
+  width:12px; height:12px;
+  background:var(--terracotta);
+  border-radius:50%;
+  position:fixed; top:0; left:0;
+  pointer-events:none; z-index:9999;
+  transition:transform .15s ease, background .3s;
+  mix-blend-mode:multiply;
+}
+.cursor-follower {
+  width:36px; height:36px;
+  border:1.5px solid var(--terracotta);
+  border-radius:50%;
+  position:fixed; top:0; left:0;
+  pointer-events:none; z-index:9998;
+  transition:transform .35s ease, width .2s, height .2s, border-color .3s;
+  mix-blend-mode:multiply;
+}
+
+/* ═══════════════════════════════════════
+   PAGE SYSTEM
+═══════════════════════════════════════ */
+.page { display:none; min-height:100vh; }
+.page.active { display:block; }
+
+/* Transition overlay */
+#transition-overlay {
+  position:fixed; inset:0;
+  background:var(--ink);
+  z-index:8000;
+  transform:scaleY(0);
+  transform-origin:bottom;
+  pointer-events:none;
+}
+#transition-overlay.in  { animation: curtainIn  .45s cubic-bezier(.76,0,.24,1) forwards; }
+#transition-overlay.out { animation: curtainOut .45s cubic-bezier(.76,0,.24,1) forwards; }
+@keyframes curtainIn  { from{transform:scaleY(0);transform-origin:bottom} to{transform:scaleY(1);transform-origin:bottom} }
+@keyframes curtainOut { from{transform:scaleY(1);transform-origin:top}    to{transform:scaleY(0);transform-origin:top} }
+
+/* ═══════════════════════════════════════
+   PORTFOLIO NAV
+═══════════════════════════════════════ */
+.p-nav {
+  position:fixed; top:0; width:100%;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:28px 60px;
+  z-index:100;
+  mix-blend-mode:multiply;
+}
+.nav-logo {
+  font-family:'Playfair Display',serif;
+  font-size:1.1rem; letter-spacing:.05em;
+  color:var(--ink); text-decoration:none;
+}
+.nav-links { display:flex; gap:40px; list-style:none; }
+.nav-links a {
+  font-size:.8rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink); text-decoration:none; position:relative;
+}
+.nav-links a::after {
+  content:''; position:absolute; bottom:-2px; left:0;
+  width:0; height:1px; background:var(--terracotta);
+  transition:width .3s ease;
+}
+.nav-links a:hover::after { width:100%; }
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.hero {
+  min-height:100vh;
+  display:grid; grid-template-columns:1fr 1fr;
+  position:relative; overflow:hidden;
+}
+.hero-left {
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:120px 60px 80px; position:relative; z-index:2;
+}
+.hero-tag {
+  font-size:.72rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--terracotta); margin-bottom:24px;
+  opacity:0; animation:fadeUp .8s ease .2s forwards;
+}
+.hero-name {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(3.5rem,7vw,6rem); font-weight:900;
+  line-height:.95; letter-spacing:-.02em; margin-bottom:32px;
+  opacity:0; animation:fadeUp .8s ease .4s forwards;
+}
+.hero-name em { font-style:italic; color:var(--terracotta); }
+.hero-desc {
+  font-size:1rem; line-height:1.7; color:var(--muted);
+  max-width:360px; margin-bottom:48px;
+  opacity:0; animation:fadeUp .8s ease .6s forwards;
+}
+.hero-cta {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:16px 32px; background:var(--ink); color:var(--cream);
+  font-size:.8rem; letter-spacing:.15em; text-transform:uppercase;
+  text-decoration:none;
+  transition:background .3s ease, gap .3s ease;
+  opacity:0; animation:fadeUp .8s ease .8s forwards;
+}
+.hero-cta:hover { background:var(--terracotta); gap:20px; }
+.hero-right { position:relative; overflow:hidden; }
+.hero-img-wrap { position:absolute; inset:0; opacity:0; animation:fadeIn 1s ease .5s forwards; }
+.hero-img-bg {
+  width:100%; height:100%; background:var(--sand);
+  position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.profile-frame { position:relative; width:300px; height:380px; }
+.profile-frame::before {
+  content:''; position:absolute; inset:-12px;
+  border:1.5px solid var(--terracotta);
+  border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  opacity:.4; animation:frameRotate 10s linear infinite;
+}
+@keyframes frameRotate { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.profile-img-wrap {
+  width:100%; height:100%;
+  border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+  overflow:hidden; position:relative;
+  background:linear-gradient(160deg,var(--sand) 0%,#d9c9ac 100%);
+}
+.profile-img-wrap img {
+  width:100%; height:100%; object-fit:cover; object-position:top center;
+  display:block; transition:transform .5s ease;
+}
+.profile-img-wrap:hover img { transform:scale(1.04); }
+.profile-upload-overlay {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  background:linear-gradient(160deg,var(--sand) 0%,#d9c9ac 100%);
+  border-radius:inherit; transition:background .3s ease;
+}
+.upload-icon {
+  width:52px; height:52px; border:1.5px solid var(--terracotta); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--terracotta); font-size:1.4rem;
+}
+.upload-text { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); text-align:center; }
+.hero-years { position:absolute; bottom:48px; right:48px; text-align:right; }
+.hero-years-num {
+  font-family:'Playfair Display',serif; font-size:4.5rem; font-weight:900;
+  color:var(--ink); line-height:1; opacity:.12;
+}
+.hero-years-label { font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+.hero-scroll {
+  position:absolute; bottom:40px; left:60px;
+  display:flex; align-items:center; gap:12px;
+  font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted);
+  opacity:0; animation:fadeUp .8s ease 1.2s forwards;
+}
+.scroll-line { width:40px; height:1px; background:var(--muted); animation:scrollPulse 2s ease infinite; }
+@keyframes scrollPulse { 0%,100%{transform:scaleX(1)} 50%{transform:scaleX(1.4)} }
+
+/* ── MARQUEE ── */
+.marquee-wrap { overflow:hidden; background:var(--ink); padding:18px 0; }
+.marquee { display:flex; animation:marqueeScroll 20s linear infinite; white-space:nowrap; }
+.marquee-item {
+  display:inline-flex; align-items:center; gap:24px; padding:0 24px;
+  font-size:.75rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--cream); opacity:.7;
+}
+.marquee-dot { width:5px; height:5px; background:var(--terracotta); border-radius:50%; flex-shrink:0; }
+@keyframes marqueeScroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ── STATS ── */
+.stats {
+  display:flex; border-top:1px solid var(--sand); border-bottom:1px solid var(--sand);
+  margin:0 60px;
+}
+.stat { flex:1; padding:48px 40px; border-right:1px solid var(--sand); text-align:center; }
+.stat:last-child { border-right:none; }
+.stat-num { font-family:'Playfair Display',serif; font-size:3rem; font-weight:900; color:var(--ink); line-height:1; margin-bottom:8px; }
+.stat-num span { color:var(--terracotta); }
+.stat-label { font-size:.72rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+
+/* ── ABOUT ── */
+.about {
+  display:grid; grid-template-columns:1fr 1fr; gap:80px;
+  padding:120px 60px; max-width:1400px; margin:0 auto;
+}
+.section-label { font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--terracotta); margin-bottom:24px; }
+.about-heading { font-family:'Playfair Display',serif; font-size:clamp(2rem,4vw,3.2rem); font-weight:700; line-height:1.15; letter-spacing:-.01em; }
+.about-heading em { font-style:italic; }
+.about-right { padding-top:60px; }
+.about-text { font-size:1rem; line-height:1.85; color:var(--muted); margin-bottom:40px; }
+.skills-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.skill-pill {
+  padding:10px 18px; border:1px solid var(--sand);
+  font-size:.78rem; letter-spacing:.05em; color:var(--ink);
+  transition:all .2s ease; position:relative; overflow:hidden;
+}
+.skill-pill::before {
+  content:''; position:absolute; inset:0; background:var(--terracotta);
+  transform:translateX(-100%); transition:transform .3s ease; z-index:-1;
+}
+.skill-pill:hover { color:white; border-color:var(--terracotta); }
+.skill-pill:hover::before { transform:translateX(0); }
+
+/* ── WORK ── */
+.work { padding:120px 60px; }
+.work-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:72px; }
+.work-title { font-family:'Playfair Display',serif; font-size:clamp(2.5rem,5vw,4rem); font-weight:900; line-height:1; letter-spacing:-.02em; }
+.work-title em { font-style:italic; color:var(--terracotta); }
+.work-all {
+  font-size:.78rem; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none;
+  border-bottom:1px solid var(--sand); padding-bottom:2px;
+  transition:color .2s, border-color .2s;
+}
+.work-all:hover { color:var(--terracotta); border-color:var(--terracotta); }
+.projects-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+.project-card { position:relative; overflow:hidden; aspect-ratio:4/3; cursor:none; }
+.project-card:first-child { grid-column:1/-1; aspect-ratio:16/7; }
+.project-bg { width:100%; height:100%; transition:transform .6s ease; display:flex; align-items:center; justify-content:center; position:relative; }
+.project-card:hover .project-bg { transform:scale(1.04); }
+.project-bg-1 { background:linear-gradient(135deg,#C8183A 0%,#8b0000 50%,#5a0010 100%); }
+.project-bg-2 { background:linear-gradient(135deg,#f5e6d3 0%,#e8c4a0 100%); }
+.project-bg-3 { background:linear-gradient(135deg,#2d4a3e 0%,#1a3329 100%); }
+.project-bg-4 { background:linear-gradient(135deg,#3d2b1f 0%,#5c3d2e 100%); }
+
+.project-info {
+  position:absolute; bottom:0; left:0; right:0; padding:40px;
+  background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 100%);
+  color:white; transform:translateY(20px); opacity:0; transition:all .4s ease; z-index:3;
+}
+.project-card:hover .project-info { transform:translateY(0); opacity:1; }
+.project-tag { font-size:.68rem; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+.project-name { font-family:'Playfair Display',serif; font-size:1.6rem; font-weight:700; line-height:1.2; margin-bottom:8px; }
+.project-year { font-size:.78rem; letter-spacing:.1em; opacity:.6; }
+.project-label-always {
+  position:absolute; top:32px; left:32px;
+  background:rgba(255,255,255,.1); backdrop-filter:blur(10px);
+  padding:8px 16px; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase;
+  color:white; border:1px solid rgba(255,255,255,.2); z-index:3;
+}
+.project-label-dark { background:rgba(0,0,0,.12); color:var(--ink); }
+
+/* ── PROJECT REAL IMAGE SUPPORT ── */
+.project-bg { position:relative; }
+.project-real-img {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover; object-position:top center;
+  display:block; transition:transform .6s ease;
+  z-index:0;
+}
+.project-card:hover .project-real-img { transform:scale(1.04); }
+.project-bg-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,.65) 0%, rgba(0,0,0,.15) 55%, transparent 100%);
+  z-index:1; pointer-events:none;
+}
+
+
+/* "View Case Study" CTA on Glaveno card */
+.cs-cta-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--rose); color:white;
+  padding:9px 18px; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  border:none; cursor:none;
+  transition:background .2s;
+  white-space:nowrap;
+}
+.cs-cta-btn:hover { background:#a01028; }
+
+/* "View Prototype" button on project cards */
+.proto-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.12); color:white;
+  padding:9px 18px; font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.35); cursor:none;
+  text-decoration:none;
+  transition:background .2s, border-color .2s;
+  backdrop-filter:blur(6px);
+  white-space:nowrap;
+}
+.proto-btn:hover { background:var(--terracotta); border-color:var(--terracotta); }
+
+/* Button row inside project-info */
+.project-btns {
+  display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;
+}
+
+/* ── PROCESS (portfolio page) ── */
+.p-process {
+  background:var(--ink); padding:120px 60px; position:relative; overflow:hidden;
+}
+.p-process::before {
+  content:'PROCESS'; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Playfair Display',serif; font-size:18rem; font-weight:900;
+  color:white; opacity:.02; letter-spacing:-.05em; white-space:nowrap; pointer-events:none;
+}
+.process-heading { font-family:'Playfair Display',serif; font-size:clamp(2rem,4vw,3.2rem); font-weight:700; color:var(--cream); line-height:1.2; max-width:500px; margin-bottom:80px; }
+.process-heading em { color:var(--gold); font-style:italic; }
+.steps { display:grid; grid-template-columns:repeat(4,1fr); gap:40px; }
+.step { position:relative; }
+.step-num { font-family:'Playfair Display',serif; font-size:5rem; font-weight:900; color:var(--terracotta); opacity:.3; line-height:1; margin-bottom:-16px; }
+.step-title { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:var(--cream); margin-bottom:16px; }
+.step-text { font-size:.88rem; line-height:1.7; color:rgba(245,240,232,.45); }
+.step-line { position:absolute; top:40px; right:-20px; width:40px; height:1px; background:rgba(245,240,232,.15); }
+.step:last-child .step-line { display:none; }
+
+/* ── TOOLS ── */
+.tools { padding:100px 60px; background:var(--sand); }
+.tools-header { margin-bottom:60px; }
+.tools-grid { display:flex; flex-wrap:wrap; gap:16px; }
+.tool-badge {
+  padding:14px 28px; background:var(--cream);
+  border:1px solid rgba(0,0,0,.08); font-size:.85rem; letter-spacing:.04em;
+  transition:all .25s ease; position:relative; overflow:hidden;
+}
+.tool-badge::after {
+  content:''; position:absolute; bottom:0; left:0; width:100%; height:2px;
+  background:var(--terracotta); transform:scaleX(0); transition:transform .3s ease; transform-origin:left;
+}
+.tool-badge:hover::after { transform:scaleX(1); }
+
+/* ── CONTACT ── */
+.contact { padding:160px 60px; display:grid; grid-template-columns:1fr 1fr; gap:100px; align-items:center; }
+.contact-heading { font-family:'Playfair Display',serif; font-size:clamp(2.5rem,5vw,4.5rem); font-weight:900; line-height:1; letter-spacing:-.02em; }
+.contact-heading em { font-style:italic; color:var(--terracotta); }
+.contact-sub { font-size:1rem; line-height:1.7; color:var(--muted); margin-top:24px; max-width:400px; }
+.contact-form { display:flex; flex-direction:column; gap:20px; }
+.form-field { display:flex; flex-direction:column; gap:8px; }
+.form-label { font-size:.7rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+.form-input, .form-textarea {
+  background:transparent; border:none; border-bottom:1px solid var(--sand);
+  padding:12px 0; font-family:'DM Sans',sans-serif; font-size:1rem; font-weight:300;
+  color:var(--ink); transition:border-color .3s; outline:none;
+}
+.form-input:focus, .form-textarea:focus { border-color:var(--terracotta); }
+.form-input::placeholder, .form-textarea::placeholder { color:var(--sand); }
+.form-textarea { resize:none; height:100px; }
+.form-submit {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:18px 40px; background:var(--terracotta); color:white;
+  font-family:'DM Sans',sans-serif; font-size:.8rem; letter-spacing:.15em; text-transform:uppercase;
+  border:none; cursor:none; transition:background .3s, gap .3s; align-self:flex-start;
+}
+.form-submit:hover { background:var(--ink); gap:20px; }
+
+/* ── CONTACT INFO CARDS ── */
+.contact-info { display:flex; flex-direction:column; gap:16px; }
+.contact-info-card {
+  display:flex; align-items:center; gap:20px;
+  padding:20px 24px; border:1px solid var(--sand);
+  text-decoration:none; color:var(--ink);
+  transition:border-color .3s, transform .25s, box-shadow .3s;
+  position:relative; overflow:hidden;
+}
+.contact-info-card::before {
+  content:''; position:absolute; left:0; top:0; width:3px; height:100%;
+  background:var(--terracotta); transform:scaleY(0); transition:transform .3s ease;
+}
+.contact-info-card:hover { border-color:var(--terracotta); transform:translateX(6px); box-shadow:4px 0 24px rgba(200,97,74,.08); }
+.contact-info-card:hover::before { transform:scaleY(1); }
+.ci-icon {
+  width:44px; height:44px; flex-shrink:0;
+  background:var(--sand); display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; transition:background .3s;
+}
+.contact-info-card:hover .ci-icon { background:var(--terracotta); }
+.ci-icon svg { width:18px; height:18px; fill:none; stroke:var(--terracotta); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:stroke .3s; }
+.contact-info-card:hover .ci-icon svg { stroke:white; }
+.ci-body { flex:1; }
+.ci-label { font-size:.65rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+.ci-value { font-size:.95rem; font-weight:500; color:var(--ink); }
+
+/* ── FOOTER ── */
+.p-footer {
+  background:var(--ink); padding:40px 60px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.footer-name { font-family:'Playfair Display',serif; font-size:1rem; color:var(--cream); letter-spacing:.04em; }
+.footer-copy { font-size:.72rem; letter-spacing:.1em; color:rgba(245,240,232,.35); }
+.footer-socials { display:flex; gap:24px; }
+.footer-socials a { font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(245,240,232,.45); text-decoration:none; transition:color .2s; }
+.footer-socials a:hover { color:var(--terracotta); }
+
+/* ── MOCKUPS (portfolio work cards) ── */
+.mockup-1 {
+  width:340px; height:200px; background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:16px; position:relative;
+}
+.mockup-bar { height:8px; border-radius:4px; background:rgba(255,255,255,.15); margin-bottom:10px; }
+.mockup-bar.short { width:60%; }
+.mockup-bar.shorter { width:40%; }
+.mockup-bar.accent { background:var(--rose); opacity:.6; }
+.mockup-grid-row { display:flex; gap:8px; margin-top:12px; }
+.mockup-cell { flex:1; height:48px; border-radius:4px; background:rgba(255,255,255,.07); }
+
+
+
+/* ═══════════════════════════════════════
+   CASE STUDY PAGE
+═══════════════════════════════════════ */
+#page-case-study { background:var(--cream); font-family:'Syne',sans-serif; }
+
+/* CS NAV */
+.cs-nav {
+  position:fixed; top:0; width:100%;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:20px 64px;
+  z-index:200;
+  background:rgba(245,240,232,.92); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border-cs);
+}
+.cs-back {
+  display:flex; align-items:center; gap:10px;
+  font-size:.75rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none; border:none; background:none;
+  cursor:none; transition:color .2s;
+}
+.cs-back:hover { color:var(--rose); }
+.cs-nav-title { font-size:.85rem; font-weight:600; letter-spacing:.06em; color:var(--ink); }
+.cs-nav-tag {
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--rose); background:rgba(200,24,58,.08);
+  padding:6px 14px; border-radius:40px;
+}
+
+/* CS HERO */
+.cs-hero {
+  min-height:100vh; display:grid; grid-template-columns:1fr 1fr;
+  padding-top:76px; overflow:hidden;
+}
+.cs-hero-left {
+  display:flex; flex-direction:column; justify-content:center;
+  padding:80px 64px; position:relative;
+}
+.cs-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  font-size:.7rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--rose); margin-bottom:28px;
+  opacity:0;
+}
+.cs-eyebrow.ani { animation:fadeUp .7s ease .1s forwards; }
+.eyebrow-line { width:32px; height:1px; background:var(--rose); }
+.cs-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(3rem,5.5vw,5.2rem); font-weight:700; line-height:1.05;
+  letter-spacing:-.01em; margin-bottom:28px;
+  opacity:0;
+}
+.cs-title.ani { animation:fadeUp .7s ease .25s forwards; }
+.cs-title em { font-style:italic; color:var(--rose); }
+.cs-sub {
+  font-size:.95rem; line-height:1.75; color:var(--muted);
+  max-width:420px; margin-bottom:48px;
+  opacity:0;
+}
+.cs-sub.ani { animation:fadeUp .7s ease .4s forwards; }
+.cs-meta { display:flex; gap:40px; opacity:0; }
+.cs-meta.ani { animation:fadeUp .7s ease .55s forwards; }
+.meta-item { display:flex; flex-direction:column; gap:4px; }
+.meta-label { font-size:.65rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
+.meta-val { font-size:.9rem; font-weight:600; color:var(--ink); }
+
+.cs-hero-right {
+  position:relative; overflow:hidden;
+  background:linear-gradient(145deg,#fdeee9 0%,#f8d9d0 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.cs-real-img-wrap {
+  width:88%; height:85%;
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 40px 120px rgba(200,24,58,.18), 0 8px 24px rgba(0,0,0,.1);
+  opacity:0;
+}
+.cs-real-img-wrap.ani { animation:slideLeft .9s ease .3s forwards; }
+.cs-real-project-img {
+  width:100%; height:100%;
+  object-fit:cover; object-position:top center;
+  display:block;
+}
+
+/* CS OVERVIEW STRIP */
+.cs-overview {
+  background:var(--ink); padding:64px;
+  display:grid; grid-template-columns:repeat(4,1fr);
+}
+.ov-item { padding:0 40px; border-right:1px solid rgba(255,255,255,.08); }
+.ov-item:first-child { padding-left:0; }
+.ov-item:last-child { border-right:none; }
+.ov-label { font-size:.65rem; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-bottom:10px; }
+.ov-val { font-size:1rem; color:white; font-weight:600; line-height:1.5; }
+
+/* CS SECTIONS */
+.cs-section { padding:100px 64px; }
+.cs-section.blush { background:var(--blush); }
+.cs-section.dark { background:var(--ink); }
+.cs-section.sandtone { background:var(--sand); }
+.cs-section.white { background:white; }
+
+.cs-sec-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  font-size:.68rem; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--rose); margin-bottom:20px;
+}
+.cs-sec-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3.4rem); font-weight:700; line-height:1.1;
+  letter-spacing:-.01em; margin-bottom:20px;
+}
+.cs-sec-title em { font-style:italic; }
+.cs-sec-body { font-size:.95rem; line-height:1.8; color:var(--muted); max-width:640px; }
+.cs-divider { width:40px; height:2px; background:var(--rose); margin:24px 0 32px; }
+
+/* PROBLEM */
+.problem-grid { display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start; }
+.pain-list { display:flex; flex-direction:column; gap:20px; margin-top:40px; }
+.pain-item { display:flex; gap:20px; align-items:flex-start; padding:20px 24px; background:white; border-left:3px solid var(--rose); border-radius:0 8px 8px 0; }
+.pain-num { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:700; color:var(--rose); opacity:.3; line-height:1; flex-shrink:0; }
+.pain-text strong { display:block; font-size:.9rem; font-weight:600; margin-bottom:4px; }
+.pain-text p { font-size:.85rem; color:var(--muted); line-height:1.6; }
+.insight-box { background:var(--rose); color:white; padding:36px; border-radius:12px; margin-top:40px; }
+.insight-box .iq { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:700; font-style:italic; line-height:1.3; margin-bottom:16px; }
+.insight-box p { font-size:.85rem; line-height:1.7; opacity:.85; }
+
+/* RESEARCH */
+.research-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:48px; }
+.research-card { background:white; border:1px solid var(--border-cs); border-radius:12px; padding:32px; transition:transform .3s,box-shadow .3s; }
+.research-card:hover { transform:translateY(-6px); box-shadow:0 20px 48px rgba(200,24,58,.1); }
+.rc-icon { width:48px; height:48px; border-radius:10px; background:rgba(200,24,58,.08); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:20px; }
+.rc-title { font-size:.95rem; font-weight:700; margin-bottom:10px; }
+.rc-body { font-size:.85rem; color:var(--muted); line-height:1.7; }
+.rc-stat { font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-weight:700; color:var(--rose); margin-top:16px; line-height:1; }
+.rc-stat-label { font-size:.75rem; color:var(--muted); letter-spacing:.05em; }
+
+/* PERSONA */
+.persona-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; margin-top:56px; }
+.persona-card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:36px; }
+.persona-head { display:flex; gap:20px; align-items:center; margin-bottom:28px; }
+.persona-avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--rose),var(--gold)); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:700; color:white; }
+.persona-name { font-size:1.1rem; font-weight:700; color:white; }
+.persona-role { font-size:.78rem; color:rgba(255,255,255,.45); margin-top:2px; }
+.persona-section { margin-bottom:20px; }
+.p-sec-label { font-size:.65rem; letter-spacing:.18em; text-transform:uppercase; color:var(--rose); margin-bottom:8px; }
+.p-sec-body { font-size:.85rem; color:rgba(255,255,255,.65); line-height:1.7; }
+.tag-row { display:flex; flex-wrap:wrap; gap:8px; }
+.p-tag { padding:5px 12px; border-radius:40px; font-size:.75rem; font-weight:500; background:rgba(200,24,58,.2); color:rgba(255,255,255,.8); border:1px solid rgba(200,24,58,.3); }
+
+/* PROCESS STEPS */
+.process-row { display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:56px; border:1px solid var(--border-cs); border-radius:12px; overflow:hidden; }
+.proc-step { padding:32px 24px; border-right:1px solid var(--border-cs); position:relative; transition:background .3s; }
+.proc-step:last-child { border-right:none; }
+.proc-step:hover { background:rgba(200,24,58,.04); }
+.proc-num { font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:700; color:var(--rose); opacity:.18; line-height:1; margin-bottom:8px; }
+.proc-title { font-size:.9rem; font-weight:700; margin-bottom:10px; }
+.proc-body { font-size:.8rem; color:var(--muted); line-height:1.65; }
+.proc-tools { display:flex; flex-wrap:wrap; gap:4px; margin-top:14px; }
+.proc-tool { font-size:.65rem; padding:3px 8px; background:rgba(200,24,58,.08); color:var(--rose); border-radius:4px; letter-spacing:.05em; }
+
+/* DECISIONS */
+.decision-list { display:flex; flex-direction:column; gap:1px; margin-top:48px; }
+.decision-item { display:grid; grid-template-columns:48px 1fr 1fr; gap:32px; align-items:start; padding:36px 0; border-bottom:1px solid var(--border-cs); }
+.decision-item:last-child { border-bottom:none; }
+.dec-num { font-family:'Cormorant Garamond',serif; font-size:1.8rem; font-weight:700; color:var(--rose); opacity:.35; line-height:1; }
+.dec-label { font-size:.65rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.dec-title { font-size:1rem; font-weight:700; margin-bottom:8px; }
+.dec-body { font-size:.85rem; color:var(--muted); line-height:1.7; }
+.dec-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; background:white; border:1px solid var(--border-cs); border-radius:40px; font-size:.75rem; margin-bottom:12px; }
+.dec-pill-dot { width:6px; height:6px; background:var(--rose); border-radius:50%; }
+
+/* STYLE GUIDE */
+.style-grid { display:grid; grid-template-columns:1fr 1fr; gap:64px; margin-top:48px; }
+.color-swatches { display:flex; flex-direction:column; gap:12px; }
+.swatch-row { display:flex; gap:12px; }
+.swatch { flex:1; height:64px; border-radius:8px; display:flex; align-items:flex-end; padding:8px; font-size:.65rem; font-weight:600; letter-spacing:.05em; }
+.sw-rose { background:var(--rose); color:white; }
+.sw-blush { background:#fdeee9; color:var(--muted); border:1px solid var(--border-cs); }
+.sw-ink { background:var(--ink); color:white; }
+.sw-gold { background:var(--gold); color:white; }
+.sw-muted { background:#7a6e72; color:white; }
+.sw-border { background:#ecddd8; color:var(--muted); border:1px solid var(--border-cs); }
+.type-scale { display:flex; flex-direction:column; gap:20px; }
+.type-item { padding-bottom:20px; border-bottom:1px solid var(--border-cs); }
+.type-item:last-child { border-bottom:none; }
+.type-meta { font-size:.68rem; color:var(--muted); letter-spacing:.08em; margin-top:4px; }
+
+/* RESULTS */
+.results-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-top:56px; }
+.result-card { background:rgba(255,255,255,.08); padding:40px 32px; text-align:center; transition:background .25s; }
+.result-card:hover { background:rgba(255,255,255,.14); }
+.result-num { font-family:'Cormorant Garamond',serif; font-size:3.8rem; font-weight:700; line-height:1; margin-bottom:8px; color:white; }
+.result-unit { font-size:2rem; }
+.result-label { font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; opacity:.7; color:white; }
+.result-note { font-size:.78rem; opacity:.55; margin-top:8px; color:white; }
+
+/* LEARNINGS */
+.learnings-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-top:48px; }
+.learning-card { border:1px solid var(--border-cs); border-radius:12px; padding:32px; position:relative; overflow:hidden; transition:border-color .3s,transform .3s; }
+.learning-card:hover { border-color:var(--rose); transform:translateY(-4px); }
+.learning-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--rose); }
+.lc-icon { font-size:1.6rem; margin-bottom:16px; }
+.lc-title { font-size:.95rem; font-weight:700; margin-bottom:10px; }
+.lc-body { font-size:.85rem; color:var(--muted); line-height:1.7; }
+
+/* CS FOOTER */
+.cs-footer-cta { background:var(--ink); padding:100px 64px; display:flex; justify-content:space-between; align-items:center; }
+.fc-eyebrow { font-size:.68rem; letter-spacing:.2em; text-transform:uppercase; color:var(--rose); margin-bottom:16px; }
+.fc-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,4vw,3.5rem); font-weight:700; color:white; line-height:1.1; }
+.fc-title em { font-style:italic; color:var(--gold); }
+.fc-btn {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:18px 40px; background:var(--rose); color:white;
+  font-family:'Syne',sans-serif; font-size:.8rem; letter-spacing:.15em; text-transform:uppercase;
+  text-decoration:none; border-radius:4px;
+  transition:background .3s, gap .3s;
+}
+.fc-btn:hover { background:#a01028; gap:20px; }
+.cs-footer-bar { background:#0f0d0e; padding:24px 64px; display:flex; justify-content:space-between; align-items:center; }
+.fb-name { font-size:.8rem; color:rgba(255,255,255,.3); letter-spacing:.06em; }
+.fb-copy { font-size:.75rem; color:rgba(255,255,255,.2); }
+
+/* ── SHARED ANIMATIONS ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes slideLeft { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .8s ease,transform .8s ease; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursor-follower"></div>
+
+<!-- TRANSITION OVERLAY -->
+<div id="transition-overlay"></div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 · PORTFOLIO
+═══════════════════════════════════════ -->
+<div id="page-portfolio" class="page active">
+
+  <!-- NAV -->
+  <nav class="p-nav">
+    <a href="#" class="nav-logo">Rupesh Prasad</a>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#p-process">Process</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-tag">UI/UX Designer · Based in India</p>
+      <h1 class="hero-name">Crafting<br><em>Experiences</em><br>That Matter</h1>
+      <p class="hero-desc">2 years of turning complex problems into elegant, human-centred digital solutions. I design with purpose, test with empathy, and iterate with precision.</p>
+      <a href="#work" class="hero-cta">View My Work <span>→</span></a>
+      <div class="hero-scroll"><div class="scroll-line"></div>Scroll to explore</div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-img-wrap">
+        <div class="hero-img-bg">
+          <div class="profile-frame">
+            <div class="profile-img-wrap">
+              <!-- 🖼️ PROFILE PHOTO: Replace "rupessh1.jpg" with your photo filename -->
+              <!-- Make sure your photo file is in the SAME folder as this HTML file -->
+              <img src="Pi7_Passport_Photo (1).jpeg" alt="Rupesh Prasad"
+                onerror="this.style.display='none';document.getElementById('fallbackOverlay').style.display='flex';">
+              <div class="profile-upload-overlay" id="fallbackOverlay" style="display:none;">
+                <div class="upload-icon">👤</div>
+                <div class="upload-text" style="font-size:.62rem;padding:0 12px;text-align:center;">Place <strong>rupessh1.jpg</strong> in the same folder</div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-years">
+            <div class="hero-years-num">2</div>
+            <div class="hero-years-label">Years of craft</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee">
+      <span class="marquee-item">User Research <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Wireframing <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Prototyping <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Figma <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Interaction Design <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Design Systems <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Usability Testing <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Mobile Design <span class="marquee-dot"></span></span>
+      <span class="marquee-item">User Research <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Wireframing <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Prototyping <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Figma <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Interaction Design <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Design Systems <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Usability Testing <span class="marquee-dot"></span></span>
+      <span class="marquee-item">Mobile Design <span class="marquee-dot"></span></span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat reveal"><div class="stat-num">2<span>+</span></div><div class="stat-label">Years Experience</div></div>
+    <div class="stat reveal"><div class="stat-num">18<span>+</span></div><div class="stat-label">Projects Completed</div></div>
+    <div class="stat reveal"><div class="stat-num">12<span>+</span></div><div class="stat-label">Happy Clients</div></div>
+    <div class="stat reveal"><div class="stat-num">4<span>★</span></div><div class="stat-label">Avg Client Rating</div></div>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-left reveal">
+      <p class="section-label">About Me</p>
+      <h2 class="about-heading">Design is <em>empathy</em> made visible.</h2>
+    </div>
+    <div class="about-right reveal">
+      <p class="about-text">I'm a UI/UX designer with 2 years of hands-on experience helping startups and established brands build digital products people actually love to use. My process is grounded in research, guided by user psychology, and refined through relentless iteration.</p>
+      <p class="about-text">I believe good design isn't just about aesthetics — it's about reducing friction, building trust, and creating moments of delight. Every pixel I place has a reason.</p>
+      <div class="skills-grid">
+        <div class="skill-pill">User Research</div>
+        <div class="skill-pill">Wireframing</div>
+        <div class="skill-pill">High-fi Prototypes</div>
+        <div class="skill-pill">Design Systems</div>
+        <div class="skill-pill">Usability Testing</div>
+        <div class="skill-pill">Interaction Design</div>
+        <div class="skill-pill">Mobile-first Design</div>
+        <div class="skill-pill">Design Handoff</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work" id="work">
+    <div class="work-header reveal">
+      <h2 class="work-title">Selected<br><em>Work</em></h2>
+      <a href="#" class="work-all">All Projects →</a>
+    </div>
+    <div class="projects-grid">
+
+      <!-- GLAVENO — featured card -->
+      <div class="project-card reveal" id="glaveno-card">
+        <div class="project-bg project-bg-1">
+          <img class="project-real-img" src="glaveno-cover.jpg" alt="Glaveno Cosmetics project">
+          <div class="project-bg-overlay"></div>
+        </div>
+        <span class="project-label-always">Glaveno Cosmetics</span>
+        <div class="project-info">
+          <p class="project-tag">Web · E-Commerce · Beauty</p>
+          <p class="project-name">Glaveno Cosmetics — Landing Page</p>
+          <p class="project-year">2026</p>
+          <div class="project-btns">
+            <button class="cs-cta-btn" onclick="navigateTo('case-study')">View Case Study →</button>
+            <a href="https://www.figma.com/proto/LC1YH052JPh7HlZNYub61E/Untitled?node-id=6-2&t=KisCRimm43HxAnWz-1" target="_blank" class="proto-btn">View Prototype →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="project-card reveal">
+        <div class="project-bg project-bg-2">
+          <img class="project-real-img" src="fashion-cover.jpg" alt="Fashion Store project">
+          <div class="project-bg-overlay"></div>
+        </div>
+        <span class="project-label-always">Fashion Store</span>
+        <div class="project-info">
+          <p class="project-tag">Web · Fashion · E-Commerce</p>
+          <p class="project-name">Fashion Store — Ultimate Destination</p>
+          <p class="project-year">2026</p>
+          <div class="project-btns">
+            <a href="https://www.figma.com/proto/CXLTehyO8dIDzmrDqOl2o6/Untitled?node-id=1-2&t=Rbx9N2I4bUH9CiLA-1" target="_blank" class="proto-btn">View Prototype →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="project-card reveal">
+        <div class="project-bg project-bg-3">
+          <img class="project-real-img" src="columbia_bank_cover.jpg" alt="Dashboard Redesign project">
+          <div class="project-bg-overlay"></div>
+        </div>
+        <span class="project-label-always">Fintech</span>
+        <div class="project-info">
+          <p class="project-tag">Mobile · UX Research</p>
+          <p class="project-name">Columbia Bank — Mobile Banking App</p>
+          <p class="project-year">2026</p>
+          <div class="project-btns">
+            <a href="https://www.figma.com/proto/9rL30WM5iw173O6JPzfon8/Untitled?node-id=3-41&starting-point-node-id=1%3A2&t=HLrCHvKhPrVp2cq1-1" target="_blank" class="proto-btn">View Prototype →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="project-card reveal">
+        <div class="project-bg project-bg-4">
+          <img class="project-real-img" src="Gemini_Generated_Image_oqju5soqju5soqju.png" alt="Healthcare UX project">
+          <div class="project-bg-overlay"></div>
+        </div>
+        <span class="project-label-always">Music Player App UX</span>
+        <div class="project-info">
+          <p class="project-tag">Mobile UI · Music</p>
+          <p class="project-name">Music Player App</p>
+          <p class="project-year">2026</p>
+          <div class="project-btns">
+            <a href="https://www.figma.com/proto/3h2ceWwt0k1Ms6TY4G9s5H/Music-Player-app?node-id=15-14&p=f&t=AcxUgWilC5aDwlcK-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=3%3A2" target="_blank" class="proto-btn">View Prototype →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="p-process" id="p-process">
+    <h2 class="process-heading reveal">My design <em>process</em> — structured but never rigid</h2>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01</div><h3 class="step-title">Discover</h3><p class="step-text">Deep-dive user research, stakeholder interviews, competitor analysis, and defining the core problem statement before any pixel is touched.</p><div class="step-line"></div></div>
+      <div class="step reveal"><div class="step-num">02</div><h3 class="step-title">Define</h3><p class="step-text">Synthesizing research into personas, user journeys, and a clear product vision that aligns business goals with real user needs.</p><div class="step-line"></div></div>
+      <div class="step reveal"><div class="step-num">03</div><h3 class="step-title">Design</h3><p class="step-text">Low-fi wireframes to high-fidelity prototypes, building interactive flows, design systems, and component libraries in Figma.</p><div class="step-line"></div></div>
+      <div class="step reveal"><div class="step-num">04</div><h3 class="step-title">Deliver</h3><p class="step-text">Usability testing, iteration, and developer-ready handoff with annotated specs, assets, and continued design QA support.</p></div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section class="tools">
+    <div class="tools-header reveal"><p class="section-label">Toolkit</p><h2 class="about-heading"><em>Skills & Tools</em></h2></div>
+    <div class="tools-grid reveal">
+      <div class="tool-badge">Figma</div><div class="tool-badge">Adobe XD</div>
+      <div class="tool-badge">WordPress</div><div class="tool-badge">HTML/CSS</div>
+      <div class="tool-badge">User Research</div><div class="tool-badge">Usability Testing</div>
+      <div class="tool-badge">Personas</div><div class="tool-badge">User Flows</div>
+      <div class="tool-badge">Wireframing</div><div class="tool-badge">Prototyping</div>
+      <div class="tool-badge">SEO</div><div class="tool-badge">Framer</div>
+      <div class="tool-badge">Typography</div><div class="tool-badge">Responsive Design</div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="contact-left reveal">
+      <h2 class="contact-heading">Let's<br>build<br>something <em>great.</em></h2>
+      <p class="contact-sub">Open to freelance projects, full-time roles, and collaborations. Let's talk about what you're building.</p>
+    </div>
+    <div class="contact-info reveal">
+
+      <!-- Name -->
+      <div class="contact-info-card">
+        <div class="ci-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="ci-body">
+          <div class="ci-label">Full Name</div>
+          <div class="ci-value">Rupesh Prasad</div>
+        </div>
+      </div>
+
+      <!-- Mobile -->
+      <a href="tel:+919876543210" class="contact-info-card">
+        <div class="ci-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.61 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 3.09 4.18 2 2 0 0 1 5.07 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="ci-body">
+          <div class="ci-label">Mobile Number</div>
+          <div class="ci-value">+91 8058748141</div>
+        </div>
+      </a>
+
+      <!-- Email -->
+      <a href="mailto:rupeshprasad@email.com" class="contact-info-card">
+        <div class="ci-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="ci-body">
+          <div class="ci-label">Email Address</div>
+          <div class="ci-value">nealprasad337@gmail.com</div>
+        </div>
+      </a>
+
+      <!-- LinkedIn -->
+      <a href="https://www.linkedin.com/in/rupesh-prasad-294053195" target="_blank" class="contact-info-card">
+        <div class="ci-icon">
+          <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </div>
+        <div class="ci-body">
+          <div class="ci-label">LinkedIn Profile</div>
+          <div class="ci-value">linkedin.com/in/rupesh-prasad-294053195</div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="p-footer">
+    <div class="footer-name">Rupesh Prasad · UI/UX Designer</div>
+    <div class="footer-copy">© 2026 All rights reserved · Design By Rupesh</div>
+    <div class="footer-socials">
+    <a href="www.linkedin.com/in/rupesh-prasad-294053195
+
+">LinkedIn</a>
+    </div>
+  </footer>
+
+</div><!-- /page-portfolio -->
+
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 · CASE STUDY
+═══════════════════════════════════════ -->
+<div id="page-case-study" class="page">
+
+  <!-- CS NAV -->
+  <nav class="cs-nav">
+    <button class="cs-back" onclick="navigateTo('portfolio')">← Back to Portfolio</button>
+    <span class="cs-nav-title">Rupesh Prasad</span>
+    <span class="cs-nav-tag">Case Study</span>
+  </nav>
+
+  <!-- CS HERO -->
+  <section class="cs-hero">
+    <div class="cs-hero-left">
+      <div class="cs-eyebrow ani"><span class="eyebrow-line"></span> E-Commerce · UI/UX Design</div>
+      <h1 class="cs-title ani">Glaveno<br><em>Cosmetics</em><br>Website</h1>
+      <p class="cs-sub ani">Designing a full cosmetics e-commerce experience — from information architecture to high-fidelity UI — focused on trust, discovery, and conversion.</p>
+      <div class="cs-meta ani">
+        <div class="meta-item"><span class="meta-label">Role</span><span class="meta-val">UI/UX Designer</span></div>
+        <div class="meta-item"><span class="meta-label">Duration</span><span class="meta-val">6 Weeks</span></div>
+        <div class="meta-item"><span class="meta-label">Tools</span><span class="meta-val">Figma</span></div>
+        <div class="meta-item"><span class="meta-label">Year</span><span class="meta-val">2026</span></div>
+      </div>
+    </div>
+    <div class="cs-hero-right">
+      <div class="cs-real-img-wrap ani">
+        <img src="MacBook Air - 1 (1).png" alt="Glaveno Cosmetics Website" class="cs-real-project-img">
+      </div>
+    </div>
+  </section>
+
+  <!-- OVERVIEW -->
+  <div class="cs-overview">
+    <div class="ov-item"><div class="ov-label">Client</div><div class="ov-val">Glaveno Cosmetics</div></div>
+    <div class="ov-item"><div class="ov-label">Industry</div><div class="ov-val">Beauty & Skincare E-Commerce</div></div>
+    <div class="ov-item"><div class="ov-label">Deliverables</div><div class="ov-val">Research · Wireframes · Hi-Fi UI · Prototype</div></div>
+    <div class="ov-item"><div class="ov-label">Platform</div><div class="ov-val">Web (Desktop + Mobile)</div></div>
+  </div>
+
+  <!-- PROBLEM -->
+  <section class="cs-section blush">
+    <div class="problem-grid">
+      <div class="reveal">
+        <div class="cs-sec-eyebrow"><span class="eyebrow-line"></span> The Problem</div>
+        <h2 class="cs-sec-title">What was <em>broken?</em></h2>
+        <div class="cs-divider"></div>
+        <p class="cs-sec-body">Glaveno Cosmetics had a loyal customer base but their digital storefront wasn't converting. Users were dropping off before checkout, product discovery was fragmented, and the visual identity didn't communicate the brand's premium quality.</p>
+        <div class="insight-box" style="margin-top:36px;">
+          <div class="iq">"I can't find what I'm looking for — there are too many categories and no clear order."</div>
+          <p>— User interview participant, 26, beauty enthusiast</p>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="pain-list">
+          <div class="pain-item"><div class="pain-num">01</div><div class="pain-text"><strong>Cluttered Navigation</strong><p>7 top-level nav categories with no visual hierarchy caused decision fatigue and high bounce rates from the homepage.</p></div></div>
+          <div class="pain-item"><div class="pain-num">02</div><div class="pain-text"><strong>Weak Product Discovery</strong><p>Trending products section lacked filters, sorting, and contextual cues. Users couldn't tell what was new vs. bestselling.</p></div></div>
+          <div class="pain-item"><div class="pain-num">03</div><div class="pain-text"><strong>Low Visual Trust</strong><p>Inconsistent imagery, missing social proof, and no ingredient/benefit callouts made users feel uncertain before purchasing.</p></div></div>
+          <div class="pain-item"><div class="pain-num">04</div><div class="pain-text"><strong>No Mobile Consideration</strong><p>Over 60% of traffic was mobile, but the design was clearly desktop-first — small tap targets, collapsed content, poor scroll flow.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section class="cs-section">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow"><span class="eyebrow-line"></span> Research</div>
+      <h2 class="cs-sec-title">Understanding the <em>user</em></h2>
+      <div class="cs-divider"></div>
+      <p class="cs-sec-body">I conducted 8 user interviews, a competitive audit of 5 cosmetics brands, and ran a 120-person survey to identify core pain points and mental models.</p>
+    </div>
+    <div class="research-grid reveal">
+      <div class="research-card"><div class="rc-icon">🎤</div><div class="rc-title">User Interviews</div><div class="rc-body">8 interviews with women aged 21–38 who shop beauty online at least once a month. Sessions lasted 30–45 min via Google Meet.</div><div class="rc-stat">8</div><div class="rc-stat-label">In-depth interviews conducted</div></div>
+      <div class="research-card"><div class="rc-icon">📊</div><div class="rc-title">Survey Insights</div><div class="rc-body">120 responses revealed that 74% of users abandon a beauty site if they can't find a product within 3 clicks from the homepage.</div><div class="rc-stat">74%</div><div class="rc-stat-label">Drop off within 3 clicks</div></div>
+      <div class="research-card"><div class="rc-icon">🔍</div><div class="rc-title">Competitive Audit</div><div class="rc-body">Analysed Nykaa, Sephora, and Sugar Cosmetics for navigation patterns, product card design, trust signals, and checkout flows.</div><div class="rc-stat">5</div><div class="rc-stat-label">Competitors audited</div></div>
+      <div class="research-card"><div class="rc-icon">🖱️</div><div class="rc-title">Heatmap Analysis</div><div class="rc-body">Existing site heatmaps showed 80% of clicks concentrated in the top hero section — users weren't scrolling to trending products.</div><div class="rc-stat">80%</div><div class="rc-stat-label">Clicks above the fold</div></div>
+      <div class="research-card"><div class="rc-icon">🧪</div><div class="rc-title">Usability Testing</div><div class="rc-body">5 moderated usability tests on the original site confirmed navigation confusion and low confidence at the product detail page.</div><div class="rc-stat">5</div><div class="rc-stat-label">Usability sessions run</div></div>
+      <div class="research-card"><div class="rc-icon">📱</div><div class="rc-title">Mobile Analytics</div><div class="rc-body">Analytics showed 63% mobile traffic with a 72% higher bounce rate than desktop — confirming mobile UX was broken.</div><div class="rc-stat">63%</div><div class="rc-stat-label">Traffic from mobile devices</div></div>
+    </div>
+  </section>
+
+  <!-- PERSONAS -->
+  <section class="cs-section dark">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow" style="color:rgba(255,255,255,.45)"><span class="eyebrow-line"></span> User Personas</div>
+      <h2 class="cs-sec-title" style="color:white">Who we designed <em style="color:var(--gold)">for</em></h2>
+      <div class="cs-divider" style="background:rgba(255,255,255,.2)"></div>
+    </div>
+    <div class="persona-grid reveal">
+      <div class="persona-card">
+        <div class="persona-head"><div class="persona-avatar">P</div><div><div class="persona-name">Priya, 26</div><div class="persona-role">Marketing Executive · Delhi</div></div></div>
+        <div class="persona-section"><div class="p-sec-label">Goals</div><div class="p-sec-body">Discover new skincare launches, read real reviews before buying, and get products delivered quickly.</div></div>
+        <div class="persona-section"><div class="p-sec-label">Frustrations</div><div class="p-sec-body">Too many options with no guidance. Can't filter by skin type or concern. Product images aren't realistic.</div></div>
+        <div class="persona-section"><div class="p-sec-label">Motivations</div><div class="tag-row"><span class="p-tag">Skin goals</span><span class="p-tag">Brand loyalty</span><span class="p-tag">Trending</span></div></div>
+      </div>
+      <div class="persona-card">
+        <div class="persona-head"><div class="persona-avatar" style="background:linear-gradient(135deg,var(--gold),#e8c46a)">S</div><div><div class="persona-name">Sneha, 34</div><div class="persona-role">Homemaker · Mumbai</div></div></div>
+        <div class="persona-section"><div class="p-sec-label">Goals</div><div class="p-sec-body">Find affordable but effective skincare and makeup. Wants to compare products before deciding. Values discount codes.</div></div>
+        <div class="persona-section"><div class="p-sec-label">Frustrations</div><div class="p-sec-body">Prices are hard to compare. Can't find sale items easily. Unsure if products are authentic.</div></div>
+        <div class="persona-section"><div class="p-sec-label">Motivations</div><div class="tag-row"><span class="p-tag">Value for money</span><span class="p-tag">Trusted brands</span><span class="p-tag">Easy checkout</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESIGN PROCESS -->
+  <section class="cs-section">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow"><span class="eyebrow-line"></span> Design Process</div>
+      <h2 class="cs-sec-title">How I <em>approached</em> it</h2>
+      <div class="cs-divider"></div>
+    </div>
+    <div class="process-row reveal">
+      <div class="proc-step"><div class="proc-num">01</div><div class="proc-title">Empathise</div><div class="proc-body">User interviews, surveys, heatmap review, and session recordings to understand real behaviour.</div><div class="proc-tools"><span class="proc-tool">Hotjar</span><span class="proc-tool">Google Forms</span></div></div>
+      <div class="proc-step"><div class="proc-num">02</div><div class="proc-title">Define</div><div class="proc-body">Affinity mapping, HMW statements, and a clear problem statement aligned with business goals.</div><div class="proc-tools"><span class="proc-tool">Miro</span><span class="proc-tool">FigJam</span></div></div>
+      <div class="proc-step"><div class="proc-num">03</div><div class="proc-title">Ideate</div><div class="proc-body">Crazy 8s, competitor tear-downs, and design studio workshops to explore layout directions.</div><div class="proc-tools"><span class="proc-tool">Figma</span><span class="proc-tool">Pencil</span></div></div>
+      <div class="proc-step"><div class="proc-num">04</div><div class="proc-title">Prototype</div><div class="proc-body">Low-fi wireframes → mid-fi → high-fidelity interactive prototype with complete component library.</div><div class="proc-tools"><span class="proc-tool">Figma</span><span class="proc-tool">Protopie</span></div></div>
+      <div class="proc-step"><div class="proc-num">05</div><div class="proc-title">Test</div><div class="proc-body">Unmoderated usability tests via Maze with 20 participants, 2 rounds of iteration based on findings.</div><div class="proc-tools"><span class="proc-tool">Maze</span><span class="proc-tool">Notion</span></div></div>
+    </div>
+  </section>
+
+  <!-- DECISIONS -->
+  <section class="cs-section blush">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow"><span class="eyebrow-line"></span> Key Design Decisions</div>
+      <h2 class="cs-sec-title">What I <em>changed</em> & why</h2>
+      <div class="cs-divider"></div>
+    </div>
+    <div class="decision-list reveal">
+      <div class="decision-item"><div class="dec-num">1</div><div class="dec-challenge"><div class="dec-label">Challenge</div><div class="dec-title">Cluttered 7-item navigation</div><div class="dec-body">Users couldn't identify the most important categories. Eye-tracking showed equal attention across all items — meaning nothing stood out.</div></div><div class="dec-solution"><div class="dec-label">Solution</div><div class="dec-pill"><span class="dec-pill-dot"></span> Reduced to 5 primary nav items</div><div class="dec-body">Collapsed less-visited categories into a "More" mega-menu. Added icon-based horizontal category scroll below the hero — reducing navigation time by 40% in testing.</div></div></div>
+      <div class="decision-item"><div class="dec-num">2</div><div class="dec-challenge"><div class="dec-label">Challenge</div><div class="dec-title">Product cards lacked context</div><div class="dec-body">10 identical product cards with no differentiation — all showed "20% off" but no skin type, concern, or bestseller signal.</div></div><div class="dec-solution"><div class="dec-label">Solution</div><div class="dec-pill"><span class="dec-pill-dot"></span> Contextual product cards</div><div class="dec-body">Added "Best Seller", "New", and skin-type tags to cards. Introduced a tab filter (New Arrivals / Best Selling / Special) that drove real product segmentation.</div></div></div>
+      <div class="decision-item"><div class="dec-num">3</div><div class="dec-challenge"><div class="dec-label">Challenge</div><div class="dec-title">Low trust signals on product pages</div><div class="dec-body">No ingredient callouts, no skin-type suitability, no user review snippets above the fold. Users felt uncertain before purchasing.</div></div><div class="dec-solution"><div class="dec-label">Solution</div><div class="dec-pill"><span class="dec-pill-dot"></span> Trust-first product layout</div><div class="dec-body">Added a "Key Benefits" strip, skin type tags, and a condensed review summary visible without scrolling. Partner logos elevated perceived credibility on the homepage.</div></div></div>
+      <div class="decision-item"><div class="dec-num">4</div><div class="dec-challenge"><div class="dec-label">Challenge</div><div class="dec-title">No mobile-first thinking</div><div class="dec-body">The design had 44px desktop buttons scaling down to 28px on mobile — below WCAG's 44×44px minimum tap target guideline.</div></div><div class="dec-solution"><div class="dec-label">Solution</div><div class="dec-pill"><span class="dec-pill-dot"></span> Mobile-first component system</div><div class="dec-body">Rebuilt all components at 48px minimum touch targets. Designed mobile layout first, then scaled up. Added sticky bottom nav for thumb-zone accessibility.</div></div></div>
+    </div>
+  </section>
+
+  <!-- VISUAL STYLE -->
+  <section class="cs-section white">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow"><span class="eyebrow-line"></span> Visual Design</div>
+      <h2 class="cs-sec-title">Colour & <em>Typography</em></h2>
+      <div class="cs-divider"></div>
+      <p class="cs-sec-body">The visual language was designed to feel premium yet approachable — anchored by Glaveno's signature crimson red, softened with warm blush tones and gold accents.</p>
+    </div>
+    <div class="style-grid reveal">
+      <div>
+        <div style="font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">Colour Palette</div>
+        <div class="color-swatches">
+          <div class="swatch-row"><div class="swatch sw-rose">#C8183A</div><div class="swatch sw-blush">#FDF0EC</div></div>
+          <div class="swatch-row"><div class="swatch sw-ink">#1A1018</div><div class="swatch sw-gold">#D4A853</div></div>
+          <div class="swatch-row"><div class="swatch sw-muted">#7A6E72</div><div class="swatch sw-border">#ECDDD8</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">Type Scale</div>
+        <div class="type-scale">
+          <div class="type-item"><div style="font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;line-height:1.2;">Heading H1</div><div class="type-meta">Cormorant Garamond · 700 · 48px</div></div>
+          <div class="type-item"><div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;">Section Title H2</div><div class="type-meta">Cormorant Garamond · 600 · 28px</div></div>
+          <div class="type-item"><div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:400;">Body / Paragraph Text</div><div class="type-meta">Syne · 400 · 16px · 1.75 line-height</div></div>
+          <div class="type-item"><div style="font-family:'Syne',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;">LABEL / CAPTION</div><div class="type-meta">Syne · 600 · 12px · 0.15em tracking</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="cs-section" style="background:var(--rose); padding:100px 64px;">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow" style="color:rgba(255,255,255,.6)"><span class="eyebrow-line" style="background:rgba(255,255,255,.4)"></span> Outcomes</div>
+      <h2 class="cs-sec-title" style="color:white">Results & <em style="color:var(--gold)">Impact</em></h2>
+      <div class="cs-divider" style="background:rgba(255,255,255,.3)"></div>
+      <p class="cs-sec-body" style="color:rgba(255,255,255,.75)">Usability testing of the redesigned prototype showed significant improvements across all key metrics compared to the original experience.</p>
+    </div>
+    <div class="results-grid reveal">
+      <div class="result-card"><div class="result-num">+<span class="result-unit">38</span>%</div><div class="result-label">Task Completion Rate</div><div class="result-note">vs. original design</div></div>
+      <div class="result-card"><div class="result-num">-<span class="result-unit">52</span>%</div><div class="result-label">Navigation Drop-off</div><div class="result-note">fewer users bounced from nav</div></div>
+      <div class="result-card"><div class="result-num">4.<span class="result-unit">6</span>★</div><div class="result-label">SUS Usability Score</div><div class="result-note">System Usability Scale / 5</div></div>
+      <div class="result-card"><div class="result-num">+<span class="result-unit">29</span>%</div><div class="result-label">Add-to-Cart Clicks</div><div class="result-note">in prototype A/B test</div></div>
+    </div>
+  </section>
+
+  <!-- LEARNINGS -->
+  <section class="cs-section">
+    <div class="reveal">
+      <div class="cs-sec-eyebrow"><span class="eyebrow-line"></span> Reflection</div>
+      <h2 class="cs-sec-title">What I <em>learned</em></h2>
+      <div class="cs-divider"></div>
+      <p class="cs-sec-body">Every project teaches something new. Here are the key takeaways I'm carrying forward from this engagement.</p>
+    </div>
+    <div class="learnings-grid reveal">
+      <div class="learning-card"><div class="lc-icon">🔁</div><div class="lc-title">Test early, test often</div><div class="lc-body">My first wireframe of the category navigation was validated in a 5-minute hallway test that saved 2 days of visual design work in the wrong direction.</div></div>
+      <div class="learning-card"><div class="lc-icon">📱</div><div class="lc-title">Mobile-first isn't optional</div><div class="lc-body">Starting the design on a 375px frame forces better prioritisation. Everything that made it to desktop felt intentional rather than squeezed in.</div></div>
+      <div class="learning-card"><div class="lc-icon">💬</div><div class="lc-title">Copy is part of design</div><div class="lc-body">Changing "Shop Now" to "Explore Skincare" on the hero CTA improved clicks by 18% in testing — microcopy decisions matter as much as layout.</div></div>
+      <div class="learning-card"><div class="lc-icon">🎯</div><div class="lc-title">Less is more in e-commerce</div><div class="lc-body">Reducing homepage sections from 8 to 5, and product cards from 10 to 6, actually increased scroll depth and time on page.</div></div>
+      <div class="learning-card"><div class="lc-icon">🤝</div><div class="lc-title">Align on metrics first</div><div class="lc-body">Defining success KPIs before starting design kept stakeholder feedback focused and actionable throughout the project.</div></div>
+      <div class="learning-card"><div class="lc-icon">🧩</div><div class="lc-title">Design systems save time</div><div class="lc-body">Building a component library at the wireframe stage meant the high-fidelity phase took 40% less time — consistency came for free.</div></div>
+    </div>
+  </section>
+
+  <!-- CS FOOTER -->
+  <div class="cs-footer-cta">
+    <div>
+      <div class="fc-eyebrow">Next Steps</div>
+      <h2 class="fc-title">Want to see the<br>full <em>Figma file?</em></h2>
+    </div>
+    <a href="https://www.figma.com/proto/LC1YH052JPh7HlZNYub61E/Untitled?node-id=6-2&t=KisCRimm43HxAnWz-1" class="fc-btn">View Prototype →</a>
+  </div>
+  <div class="cs-footer-bar">
+    <span class="fb-name">Rupesh Prasad · UI/UX Designer</span>
+    <span class="fb-copy">© 2026 · Design By Rupesh</span>
+  </div>
+
+</div><!-- /page-case-study -->
+
+
+<script>
+/* ── NAVIGATION ── */
+const overlay = document.getElementById('transition-overlay');
+
+function navigateTo(target) {
+  overlay.className = 'in';
+  setTimeout(() => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + target).classList.add('active');
+    window.scrollTo(0, 0);
+
+    // Re-trigger case study animations
+    if (target === 'case-study') {
+      document.querySelectorAll('.cs-eyebrow,.cs-title,.cs-sub,.cs-meta,.cs-real-img-wrap').forEach(el => {
+        el.classList.remove('ani');
+        void el.offsetWidth;
+        el.classList.add('ani');
+      });
+      // reset + re-observe reveals in cs page
+      document.querySelectorAll('#page-case-study .reveal').forEach(el => {
+        el.classList.remove('visible');
+      });
+      setTimeout(observeReveals, 100);
+    }
+
+    overlay.className = 'out';
+  }, 450);
+}
+
+/* ── CURSOR ── */
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursor-follower');
+let mx=0, my=0, fx=0, fy=0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.transform = `translate(${mx-6}px,${my-6}px)`;
+});
+(function loop() {
+  fx += (mx-fx)*.12; fy += (my-fy)*.12;
+  follower.style.transform = `translate(${fx-18}px,${fy-18}px)`;
+  requestAnimationFrame(loop);
+})();
+
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('a,button,.project-card,.skill-pill,.tool-badge,.research-card,.learning-card')) {
+    follower.style.width = '56px'; follower.style.height = '56px';
+  }
+});
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('a,button,.project-card,.skill-pill,.tool-badge,.research-card,.learning-card')) {
+    follower.style.width = '36px'; follower.style.height = '36px';
+  }
+});
+
+/* ── SCROLL REVEAL ── */
+function observeReveals() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
+}
+observeReveals();
+</script>
+</body>
+</html>
